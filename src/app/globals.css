@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* 自定义滚动条 */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #D32F2F #FEE2E2;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #FEE2E2;
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #D32F2F;
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #B71C1C;
+  }
+  
+  /* 瀑布流布局优化 */
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
+  
+  /* 春节主题渐变 */
+  .chinese-red-gradient {
+    background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
+  }
+  
+  .gold-gradient {
+    background: linear-gradient(135deg, #FFD700 0%, #FFC400 100%);
+  }
+  
+  /* 卡片阴影效果 */
+  .card-shadow {
+    box-shadow: 0 10px 25px -5px rgba(211, 47, 47, 0.1), 
+                0 10px 10px -5px rgba(211, 47, 47, 0.04);
+  }
+  
+  .card-shadow-hover {
+    box-shadow: 0 20px 40px -10px rgba(211, 47, 47, 0.2), 
+                0 10px 20px -5px rgba(211, 47, 47, 0.1);
+  }
+  
+  /* 动画效果 */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes snow {
+    0% {
+      transform: translateY(-100px) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+  
+  .snowflake {
+    position: absolute;
+    color: #D32F2F;
+    font-size: 1em;
+    animation: snow linear infinite;
+  }
+  
+  /* 响应式字体大小 */
+  .responsive-text {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+  }
+  
+  /* 加载动画 */
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+}
+
+/* 全局样式覆盖 */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF8E1 0%, #FFECB3 100%);
+}
+
+/* 选择文本样式 */
+::selection {
+  background-color: #D32F2F;
+  color: white;
+}
+
+/* 焦点样式 */
+:focus-visible {
+  outline: 2px solid #D32F2F;
+  outline-offset: 2px;
+}
+
+/* 禁用状态样式 */
+[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
