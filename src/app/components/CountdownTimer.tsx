@@ -9,7 +9,7 @@ interface CountdownTimerProps {
   onComplete?: () => void
 }
 
-export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
+export default function CountdownTimer({ targetDate, onComplete }: CountdownTimerProps) {
   const [countdown, setCountdown] = useState<CountdownState>({
     days: 0,
     hours: 0,
@@ -62,7 +62,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
     const timer = setInterval(updateCountdown, 1000)
 
     return () => clearInterval(timer)
-  }, [targetDate])
+  }, [targetDate, onComplete])
 
   // 数字翻动卡片组件 - 使用React.memo避免不必要的重渲染
   const FlipNumberCard = React.memo(({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => {
@@ -168,7 +168,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
         </span>
       </motion.div>
     )
-  }
+  })
 
   // 分隔符组件
   const Separator = () => (

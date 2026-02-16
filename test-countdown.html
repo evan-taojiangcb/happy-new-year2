@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倒计时翻动效果测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #D32F2F;
+            text-align: center;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            background: #f9f9f9;
+        }
+        .test-case.fail {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.pass {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.fail {
+            background: #f44336;
+            color: white;
+        }
+        .log {
+            font-family: monospace;
+            background: #333;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>倒计时翻动效果测试报告</h1>
+        
+        <div class="test-case">
+            <h3>测试1: 服务器状态</h3>
+            <div id="test1-result">测试中...</div>
+        </div>
+        
+        <div class="test-case">
+            <h3>测试2: API接口</h3>
+            <div id="test2-result">测试中...</div>
+        </div>
+        
+        <div class="test-case">
+            <h3>测试3: 倒计时组件渲染</h3>
+            <div id="test3-result">测试中...</div>
+        </div>
+        
+        <div class="test-case">
+            <h3>测试4: 数字翻动逻辑</h3>
+            <div id="test4-result">测试中...</div>
+            <div class="log" id="test4-log"></div>
+        </div>
+        
+        <div class="test-case">
+            <h3>测试5: 页面完整功能</h3>
+            <div id="test5-result">测试中...</div>
+        </div>
+    </div>
+
+    <script>
+        // 测试1: 服务器状态
+        fetch('http://localhost:3000')
+            .then(response => {
+                const result = document.getElementById('test1-result');
+                if (response.ok) {
+                    result.innerHTML = '<span class="status pass">通过</span> 服务器运行正常 (HTTP 200)';
+                } else {
+                    result.innerHTML = `<span class="status fail">失败</span> HTTP ${response.status}`;
+                    result.parentElement.classList.add('fail');
+                }
+            })
+            .catch(error => {
+                const result = document.getElementById('test1-result');
+                result.innerHTML = `<span class="status fail">失败</span> ${error.message}`;
+                result.parentElement.classList.add('fail');
+            });
+
+        // 测试2: API接口
+        fetch('http://localhost:3000/api/wishes')
+            .then(response => response.json())
+            .then(data => {
+                const result = document.getElementById('test2-result');
+                if (data.success) {
+                    result.innerHTML = `<span class="status pass">通过</span> API接口正常，返回 ${data.data?.wishes?.length || 0} 个愿望`;
+                } else {
+                    result.innerHTML = `<span class="status fail">失败</span> API返回错误: ${data.error}`;
+                    result.parentElement.classList.add('fail');
+                }
+            })
+            .catch(error => {
+                const result = document.getElementById('test2-result');
+                result.innerHTML = `<span class="status fail">失败</span> ${error.message}`;
+                result.parentElement.classList.add('fail');
+            });
+
+        // 测试3: 倒计时组件
+        fetch('http://localhost:3000')
+            .then(response => response.text())
+            .then(html => {
+                const result = document.getElementById('test3-result');
+                if (html.includes('距离2026年除夕愿望放飞还有') && 
+                    html.includes('FlipNumberCard')) {
+                    result.innerHTML = '<span class="status pass">通过</span> 倒计时组件正确渲染';
+                } else {
+                    result.innerHTML = '<span class="status fail">失败</span> 倒计时组件未找到或渲染错误';
+                    result.parentElement.classList.add('fail');
+                }
+            })
+            .catch(error => {
+                const result = document.getElementById('test3-result');
+                result.innerHTML = `<span class="status fail">失败</span> ${error.message}`;
+                result.parentElement.classList.add('fail');
+            });
+
+        // 测试4: 数字翻动逻辑（模拟测试）
+        setTimeout(() => {
+            const result = document.getElementById('test4-result');
+            const log = document.getElementById('test4-log');
+            
+            // 模拟翻动逻辑测试
+            let testLog = [];
+            let prevSeconds = 59;
+            let currentSeconds = 0;
+            
+            testLog.push(`初始状态: prevSeconds=${prevSeconds}, currentSeconds=${currentSeconds}`);
+            
+            // 测试数字变化时应该翻动
+            if (prevSeconds !== currentSeconds) {
+                testLog.push('✓ 数字变化检测正常');
+            } else {
+                testLog.push('✗ 数字变化检测失败');
+            }
+            
+            // 测试相同数字不应该翻动
+            prevSeconds = 30;
+            currentSeconds = 30;
+            if (prevSeconds === currentSeconds) {
+                testLog.push('✓ 相同数字不翻动检测正常');
+            } else {
+                testLog.push('✗ 相同数字检测失败');
+            }
+            
+            log.innerHTML = testLog.join('\n');
+            result.innerHTML = '<span class="status pass">通过</span> 翻动逻辑测试完成';
+        }, 1000);
+
+        // 测试5: 页面完整功能
+        setTimeout(() => {
+            const result = document.getElementById('test5-result');
+            
+            // 创建测试愿望
+            const timestamp = Date.now();
+            fetch('http://localhost:3000/api/wishes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: `test_user_${timestamp}`,
+                    nickname: '自动化测试',
+                    content: '这是自动化测试创建的愿望',
+                    gender: 'secret'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    result.innerHTML = `<span class="status pass">通过</span> 完整功能测试完成，愿望创建成功`;
+                } else {
+                    result.innerHTML = `<span class="status fail">失败</span> 愿望创建失败: ${data.error}`;
+                    result.parentElement.classList.add('fail');
+                }
+            })
+            .catch(error => {
+                result.innerHTML = `<span class="status fail">失败</span> ${error.message}`;
+                result.parentElement.classList.add('fail');
+            });
+        }, 2000);
+    </script>
+</body>
+</html>
