@@ -16,6 +16,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
     seconds: 0,
     isCompleted: false
   })
+  const [prevCountdown, setPrevCountdown] = useState<CountdownState>(countdown)
 
   useEffect(() => {
     const target = new Date(targetDate).getTime()
@@ -40,13 +41,16 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((distance % (1000 * 60)) / 1000)
 
-      setCountdown({
+      const newCountdown = {
         days,
         hours,
         minutes,
         seconds,
         isCompleted: false
-      })
+      }
+
+      setPrevCountdown(countdown)
+      setCountdown(newCountdown)
     }
 
     // 立即更新一次
@@ -59,15 +63,13 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   }, [targetDate])
 
   // 数字翻动卡片组件
-  const FlipNumberCard = ({ value, label }: { value: number; label: string }) => {
-    const [prevValue, setPrevValue] = useState(value)
+  const FlipNumberCard = ({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => {
     const [isFlipping, setIsFlipping] = useState(false)
 
     useEffect(() => {
       if (prevValue !== value) {
         setIsFlipping(true)
         const timer = setTimeout(() => {
-          setPrevValue(value)
           setIsFlipping(false)
         }, 300)
         return () => clearTimeout(timer)
@@ -193,13 +195,13 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
       </h2>
       
       <div className="flex justify-center items-center space-x-4 mb-8">
-        <FlipNumberCard value={countdown.days} label="天" />
+        <FlipNumberCard value={countdown.days} prevValue={prevCountdown.days} label="天" />
         <Separator />
-        <FlipNumberCard value={countdown.hours} label="时" />
+        <FlipNumberCard value={countdown.hours} prevValue={prevCountdown.hours} label="时" />
         <Separator />
-        <FlipNumberCard value={countdown.minutes} label="分" />
+        <FlipNumberCard value={countdown.minutes} prevValue={prevCountdown.minutes} label="分" />
         <Separator />
-        <FlipNumberCard value={countdown.seconds} label="秒" />
+        <FlipNumberCard value={countdown.seconds} prevValue={prevCountdown.seconds} label="秒" />
       </div>
 
       {/* 进度条 */}
