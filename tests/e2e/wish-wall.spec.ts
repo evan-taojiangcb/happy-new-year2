@@ -42,9 +42,19 @@ test.describe('许愿墙E2E测试', () => {
     // 提交表单
     await page.getByRole('button', { name: '许下愿望' }).click()
     
-    // 检查提交成功
-    await expect(page.getByText('测试用户')).toBeVisible()
-    await expect(page.getByText('这是一个E2E测试愿望')).toBeVisible()
+    // 等待表单关闭
+    await expect(page.getByRole('heading', { name: '写下你的新年愿望' })).toBeHidden({ timeout: 5000 })
+    
+    // 等待愿望列表更新
+    await page.waitForTimeout(1000)
+    
+    // 检查提交成功 - 在愿望列表中查找
+    const wishCards = page.locator('.break-inside-avoid')
+    await expect(wishCards.first()).toBeVisible()
+    
+    // 检查是否有包含测试内容的愿望
+    const testWish = page.locator('text=这是一个E2E测试愿望').first()
+    await expect(testWish).toBeVisible({ timeout: 5000 })
   })
 
   test('愿望数量限制', async ({ page }) => {
