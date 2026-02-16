@@ -58,40 +58,105 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
     return () => clearInterval(timer)
   }, [targetDate])
 
-  // 数字卡片组件
-  const NumberCard = ({ value, label }: { value: number; label: string }) => (
-    <motion.div
-      key={`${label}-${value}`}
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 200 }}
-      className="flex flex-col items-center"
-    >
-      <div className="relative">
-        {/* 数字卡片 */}
-        <div className="w-20 h-24 bg-gradient-to-b from-red-600 to-red-700 rounded-lg shadow-lg flex items-center justify-center relative overflow-hidden">
-          {/* 光泽效果 */}
-          <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent"></div>
+  // 数字翻动卡片组件
+  const FlipNumberCard = ({ value, label }: { value: number; label: string }) => {
+    const [prevValue, setPrevValue] = useState(value)
+    const [isFlipping, setIsFlipping] = useState(false)
+
+    useEffect(() => {
+      if (prevValue !== value) {
+        setIsFlipping(true)
+        const timer = setTimeout(() => {
+          setPrevValue(value)
+          setIsFlipping(false)
+        }, 300)
+        return () => clearTimeout(timer)
+      }
+    }, [value, prevValue])
+
+    const displayValue = value.toString().padStart(2, '0')
+    const displayPrevValue = prevValue.toString().padStart(2, '0')
+
+    return (
+      <motion.div
+        key={`${label}-${value}`}
+        className="flex flex-col items-center"
+      >
+        <div className="relative">
+          {/* 数字卡片容器 */}
+          <div className="w-20 h-24 bg-gradient-to-b from-red-600 to-red-700 rounded-lg shadow-lg overflow-hidden relative">
+            {/* 当前数字（上层） */}
+            <motion.div
+              animate={isFlipping ? {
+                rotateX: -90,
+                y: -12
+              } : {
+                rotateX: 0,
+                y: 0
+              }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-red-600 to-red-700 flex items-center justify-center">
+                <span className="text-4xl font-bold text-white tracking-wider">
+                  {displayValue}
+                </span>
+              </div>
+              <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent"></div>
+            </motion.div>
+
+            {/* 上一个数字（下层） */}
+            <motion.div
+              animate={isFlipping ? {
+                rotateX: 0,
+                y: 0
+              } : {
+                rotateX: 90,
+                y: 12
+              }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-red-700 to-red-800 flex items-center justify-center">
+                <span className="text-4xl font-bold text-white/80 tracking-wider">
+                  {displayPrevValue}
+                </span>
+              </div>
+            </motion.div>
+
+            {/* 卡片分割线 */}
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-black/20 z-10"></div>
+            
+            {/* 顶部光泽效果 */}
+            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent z-5"></div>
+            
+            {/* 卡片底部装饰 */}
+            <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-yellow-500"></div>
+          </div>
           
-          {/* 数字 */}
-          <span className="text-4xl font-bold text-white tracking-wider">
-            {value.toString().padStart(2, '0')}
-          </span>
+          {/* 卡片阴影 */}
+          <div className="absolute -bottom-1 left-1 right-1 h-2 bg-red-900/30 blur-sm rounded-full"></div>
           
-          {/* 卡片底部装饰 */}
-          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-yellow-500"></div>
+          {/* 翻动时的光效 */}
+          {isFlipping && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gradient-to-b from-yellow-200/30 to-transparent rounded-lg"
+            />
+          )}
         </div>
         
-        {/* 卡片阴影 */}
-        <div className="absolute -bottom-1 left-1 right-1 h-2 bg-red-900/30 blur-sm rounded-full"></div>
-      </div>
-      
-      {/* 标签 */}
-      <span className="mt-3 text-sm font-medium text-gray-700 uppercase tracking-wider">
-        {label}
-      </span>
-    </motion.div>
-  )
+        {/* 标签 */}
+        <span className="mt-3 text-sm font-medium text-gray-700 uppercase tracking-wider">
+          {label}
+        </span>
+      </motion.div>
+    )
+  }
 
   // 分隔符组件
   const Separator = () => (
@@ -128,13 +193,13 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
       </h2>
       
       <div className="flex justify-center items-center space-x-4 mb-8">
-        <NumberCard value={countdown.days} label="天" />
+        <FlipNumberCard value={countdown.days} label="天" />
         <Separator />
-        <NumberCard value={countdown.hours} label="时" />
+        <FlipNumberCard value={countdown.hours} label="时" />
         <Separator />
-        <NumberCard value={countdown.minutes} label="分" />
+        <FlipNumberCard value={countdown.minutes} label="分" />
         <Separator />
-        <NumberCard value={countdown.seconds} label="秒" />
+        <FlipNumberCard value={countdown.seconds} label="秒" />
       </div>
 
       {/* 进度条 */}
