@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { CountdownState } from '@/app/lib/types'
 
@@ -62,19 +62,27 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
     return () => clearInterval(timer)
   }, [targetDate])
 
-  // 数字翻动卡片组件
-  const FlipNumberCard = ({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => {
+  // 数字翻动卡片组件 - 使用React.memo避免不必要的重渲染
+  const FlipNumberCard = React.memo(({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => {
     const [isFlipping, setIsFlipping] = useState(false)
+    const prevValueRef = useRef(prevValue)
 
     useEffect(() => {
-      if (prevValue !== value) {
+      // 只有当值真正变化时才触发动画
+      if (prevValueRef.current !== value) {
         setIsFlipping(true)
         const timer = setTimeout(() => {
           setIsFlipping(false)
+          prevValueRef.current = value
         }, 300)
         return () => clearTimeout(timer)
       }
-    }, [value, prevValue])
+    }, [value])
+
+    // 如果prevValue变化，更新ref但不触发动画
+    useEffect(() => {
+      prevValueRef.current = prevValue
+    }, [prevValue])
 
     const displayValue = value.toString().padStart(2, '0')
     const displayPrevValue = prevValue.toString().padStart(2, '0')
