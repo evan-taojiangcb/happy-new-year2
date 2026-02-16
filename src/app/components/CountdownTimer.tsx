@@ -6,6 +6,7 @@ import { CountdownState } from '@/app/lib/types'
 
 interface CountdownTimerProps {
   targetDate: string // ISO格式的目标日期，如 "2026-02-16T23:59:59+08:00"
+  onComplete?: () => void
 }
 
 export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
@@ -33,6 +34,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
           seconds: 0,
           isCompleted: true
         })
+        onComplete?.()
         return
       }
 

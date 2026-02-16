@@ -5,6 +5,7 @@ import WishCard from '@/app/components/WishCard'
 import WishForm from '@/app/components/WishForm'
 import CountdownTimer from '@/app/components/CountdownTimer'
 import RedEnvelopeButton from '@/app/components/RedEnvelopeButton'
+import ReleaseAnimation from '@/app/components/ReleaseAnimation'
 import { Wish } from '@/app/lib/types'
 
 // 模拟数据 - 后续替换为真实API
@@ -66,6 +67,7 @@ export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [userWishCount, setUserWishCount] = useState(0)
   const [userId, setUserId] = useState<string>('')
+  const [isReleaseTriggered, setIsReleaseTriggered] = useState(false)
 
   // 初始化用户ID
   useEffect(() => {
@@ -115,7 +117,10 @@ export default function Home() {
         
         {/* 倒计时组件 */}
         <div className="mb-12">
-          <CountdownTimer targetDate="2026-02-16T23:59:59+08:00" />
+          <CountdownTimer 
+            targetDate="2026-02-16T23:59:59+08:00"
+            onComplete={() => setIsReleaseTriggered(true)}
+          />
         </div>
       </header>
 
@@ -165,6 +170,13 @@ export default function Home() {
         onSubmit={handleAddWish}
         userId={userId}
         userWishCount={userWishCount}
+      />
+
+      {/* 放飞动画 */}
+      <ReleaseAnimation
+        wishes={wishes}
+        isTriggered={isReleaseTriggered}
+        onComplete={() => setIsReleaseTriggered(false)}
       />
 
       {/* 使用说明 */}
