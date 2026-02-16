@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.990.0",
+    "@aws-sdk/lib-dynamodb": "^3.990.0",
+    "aws-lambda": "^1.0.7",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.34.0",
     "jotai": "^2.17.1",

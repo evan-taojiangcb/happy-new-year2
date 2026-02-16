@@ -1,0 +1,93 @@
+service: happy-new-year-2
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-northeast-1
+  stage: ${opt:stage, 'prod'}
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}-Wishes
+    REGION: ${self:provider.region}
+    ALLOWED_ORIGIN: "*"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}/index/*"
+
+functions:
+  api:
+    handler: src/app/api/wishes/handler.handler
+    events:
+      - http:
+          path: wishes
+          method: get
+          cors: true
+      - http:
+          path: wishes
+          method: post
+          cors: true
+      - http:
+          path: wishes
+          method: options
+          cors: true
+
+  releaseWishes:
+    handler: src/app/api/wishes/release.handler
+    events:
+      - schedule: cron(0 16 16 2 ? 2026) # 2026-02-16 16:00:00 UTC (对应北京时间 2026-02-17 00:00:00)
+    environment:
+      DYNAMODB_TABLE: ${self:provider.environment.DYNAMODB_TABLE}
+      REGION: ${self:provider.region}
+
+resources:
+  Resources:
+    WishesDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: wishId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: N
+        KeySchema:
+          - AttributeName: wishId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: StatusCreatedAtIndex
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 4000
+    lambdaPort: 4002
